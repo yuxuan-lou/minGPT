@@ -22,6 +22,7 @@ class NewGELU(nn.Module):
     """
     Implementation of the GELU activation function currently in Google BERT repo (identical to OpenAI GPT).
     Reference: Gaussian Error Linear Units (GELU) paper: https://arxiv.org/abs/1606.08415
+    GELU is used in transformers like GPT for adding non-linearity to the model layers.
     """
     def forward(self, x):
         return 0.5 * x * (1.0 + torch.tanh(math.sqrt(2.0 / math.pi) * (x + 0.044715 * torch.pow(x, 3.0))))
@@ -71,7 +72,10 @@ class CausalSelfAttention(nn.Module):
         return y
 
 class Block(nn.Module):
-    """ an unassuming Transformer block """
+    """ 
+    an unassuming Transformer block 
+    containing a layer normalization, a causal self-attention layer, and a feed-forward network (MLP).
+    """
 
     def __init__(self, config):
         super().__init__()
@@ -88,6 +92,8 @@ class Block(nn.Module):
         self.mlpf = lambda x: m.dropout(m.c_proj(m.act(m.c_fc(x)))) # MLP forward
 
     def forward(self, x):
+        #Remember the residual connection in transformer block
+        #Layer normalization before self-attention and the feed-forward network
         x = x + self.attn(self.ln_1(x))
         x = x + self.mlpf(self.ln_2(x))
         return x
@@ -96,6 +102,10 @@ class GPT(nn.Module):
     """ GPT Language Model """
 
     @staticmethod
+    # Static method to get the default configuration for the GPT model.
+    # This method can be called directly on the class without needing an instance.
+    # It's used to provide a standard configuration template independent of specific GPT instances.
+
     def get_default_config():
         C = CN()
         # either model_type or (n_layer, n_head, n_embd) must be given in the config
@@ -141,10 +151,14 @@ class GPT(nn.Module):
                 'gpt-nano':     dict(n_layer=3, n_head=3, n_embd=48),
             }[config.model_type])
 
+        # nn.ModuleDict is used to contain modules in a dictionary. It allows accessing submodules using keys, like a regular Python dictionary.
+        # Here, it's used to organize various components of the transformer model such as embeddings and layer normalization.
         self.transformer = nn.ModuleDict(dict(
             wte = nn.Embedding(config.vocab_size, config.n_embd),
             wpe = nn.Embedding(config.block_size, config.n_embd),
             drop = nn.Dropout(config.embd_pdrop),
+            # nn.ModuleList is a container module that holds submodules in a list.
+            # It is used here to store a list of transformer blocks ('Block' instances), maintaining their order and allowing sequential processing.
             h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
             ln_f = nn.LayerNorm(config.n_embd),
         ))

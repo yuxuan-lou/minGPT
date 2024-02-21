@@ -49,12 +49,19 @@ class Trainer:
         self.iter_dt = 0.0
 
     def add_callback(self, onevent: str, callback):
+        # Add a new callback function to be triggered on a specific event.
+        # 'onevent' is a string identifying the event (e.g., 'on_batch_end').
+        # 'callback' is the function to be called when the event occurs.
         self.callbacks[onevent].append(callback)
 
     def set_callback(self, onevent: str, callback):
+        # Set (replace) the callback function for a specific event.
+        # This replaces any existing callbacks for the event with the new callback.
         self.callbacks[onevent] = [callback]
 
     def trigger_callbacks(self, onevent: str):
+        # Trigger all callback functions associated with a specific event.
+        # This method is called internally to execute callbacks at appropriate times.
         for callback in self.callbacks.get(onevent, []):
             callback(self)
 
