@@ -155,7 +155,9 @@ class GPT(nn.Module):
         # nn.ModuleDict is used to contain modules in a dictionary. It allows accessing submodules using keys, like a regular Python dictionary.
         # Here, it's used to organize various components of the transformer model such as embeddings and layer normalization.
         self.transformer = nn.ModuleDict(dict(
+            # token embedding
             wte = nn.Embedding(config.vocab_size, config.n_embd),
+            # positional embedding
             wpe = nn.Embedding(config.block_size, config.n_embd),
             drop = nn.Dropout(config.embd_pdrop),
             # nn.ModuleList is a container module that holds submodules in a list.
