@@ -162,6 +162,7 @@ class GPT(nn.Module):
             drop = nn.Dropout(config.embd_pdrop),
             # nn.ModuleList is a container module that holds submodules in a list.
             # It is used here to store a list of transformer blocks ('Block' instances), maintaining their order and allowing sequential processing.
+            # all transformer blocks
             h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
             ln_f = nn.LayerNorm(config.n_embd),
         ))
