@@ -310,6 +310,13 @@ class GPT(nn.Module):
             # forward the model to get the logits for the index in the sequence
             logits, _ = self(idx_cond)
             # pluck the logits at the final step and scale by desired temperature
+            # Temperature is used to control the flexibility of generated content. 
+            # The calculated logist here needs to be divided by temperature. 
+            # When the temperature is larger, the logits of different words will be closer after being divided. 
+            # This is reflected in the probability, that is, the probability of predicting that the next digit is a different word will be closer. 
+            # From this The generated content will have more possibilities and be more creative. 
+            # On the contrary, the smaller the temperature, the more certain the generated content will be.
+            # When the temperature is larger, the difference in logits for predicting the next different word will be smaller. 
             logits = logits[:, -1, :] / temperature
             # optionally crop the logits to only the top k options
             if top_k is not None:
